@@ -3,7 +3,19 @@ pragma solidity >=0.4.22 <0.6.0;
 contract Bank {
     
     mapping(address => uint256) public savings;
-    constructor () public {}
+    address public admin;
+    
+    /*
+     * Access Restriction Pattern
+     */
+    modifier onlyAdmin {
+        require(msg.sender == admin);
+        _;
+    }
+    
+    constructor (address _admin) public {
+        admin = _admin;
+    }
     
     /*
      * Pay into a bank account.
@@ -32,4 +44,13 @@ contract Bank {
         savings[_to] += _amount;
     }
     
+    /*
+     * Forcefully takes ether from one account and puts it into another.
+     */
+    function sendSavingForce(uint256 _amount, address _from, address _to) onlyAdmin public {
+        require(savings[_from] >= _amount);
+    
+        savings[_from] -= _amount;
+        savings[_to] += _amount;
+    }
 }
